@@ -1,39 +1,20 @@
-#============================================================= -*-Perl-*-
-#
-# Template::Plugin::MP3
-#
-# DESCRIPTION
-#
-#   Template Toolkit plugin for MP3::Info
-#
-# AUTHOR
-#   Darren Chamberlain <darren@cpan.org>
-#
-# COPYRIGHT
-#   This module is free software; you can redistribute it and/or
-#   modify it under the same terms as Perl itself.
-#
-# REVISION
-#   1.00
-#
-#============================================================================
-
 package Template::Plugin::MP3;
 
-require 5.004;
+# ----------------------------------------------------------------------
+# $Id: MP3.pm,v 1.1.1.1 2003/06/24 13:42:29 dlc Exp $
+# ----------------------------------------------------------------------
 
 use strict;
 use vars qw( $VERSION $AUTOLOAD );
 use base qw( Template::Plugin );
 
-my $ETYPE = "mp3";
+my $ETYPE = "plugin.mp3";
 
-use File::Spec::Functions qw(catfile);
+use File::Spec;
 use MP3::Info ();
 use Template::Plugin;
 
-$VERSION = 1.00;
-
+$VERSION = 1.02;
 
 # ----------------------------------------------------------------------
 # new($context, $name, \%config)
@@ -58,7 +39,7 @@ sub new {
         if (UNIVERSAL::can($file, "name"));
 
     # Allow filename to be relative to a root directory
-    $file = catfile($config->{'dir'}, $file)
+    $file = File::Spec->catfile($config->{'dir'}, $file)
         if defined $config->{'dir'};
 
     -e $file or $context->throw($ETYPE, "File '$file' does not exist");
@@ -81,13 +62,11 @@ sub AUTOLOAD {
     my $self = shift;
    (my $a = $AUTOLOAD) =~ s/.*:://;
 
-    if ( exists $self->{ _MP3 }->{uc $a} )
-    {
+    if (exists $self->{ _MP3 }->{uc $a}) {
         return $self->{ _MP3 }->$a(@_) ;
     }
-    else
-    {
-        return undef ;
+    else {
+        return;
     }
 }
 
@@ -119,12 +98,13 @@ Template::Plugin::MP3 - Interface to the MP3::Info Module
 
 =head1 DESCRIPTION
 
-Template::Plugin::MP3 provides a simple wrapper for using MP3::Info in
-object oriented mode; see L<MP3::Info> for more details.
+C<Template::Plugin::MP3> provides a simple wrapper for using
+C<MP3::Info> in object oriented mode; see L<MP3::Info> for more
+details.
 
 =head1 CONSTRUCTOR and CONFIGURATION 
 
-Template::Plugin::MP3 takes a filename as its primary argument:
+C<Template::Plugin::MP3> takes a filename as its primary argument:
 
     [% USE MP3("Tryin_To_Grow_A_Chin.mp3") %]
 
@@ -137,7 +117,7 @@ The name of the file can also be specified as a named parameter
 
     [% USE MP3(name => "A_Token_Of_My_Extreme.mp3", dir => "/mp3") %]
 
-Template::Plugin::MP3 understands the following options:
+C<Template::Plugin::MP3> understands the following options:
 
 =over 8
 
@@ -155,8 +135,9 @@ it is defined.
 =item B<utf8>
 
 Determines whether results should be returned in UTF-8, as handled by
-MP3::Info's use_mp3_utf8() function.  See L<MP3::Info/use_mp3_utf8>.
-Note that this requires L<Unicode::String|Unicode::String>.
+C<MP3::Info>'s use_mp3_utf8() function.  See
+L<MP3::Info/use_mp3_utf8>.  Note that this requires
+L<Unicode::String|Unicode::String>.
 
 =back
 
@@ -174,7 +155,7 @@ caught appropriately:
 
 =head1 METHODS
 
-Template::Plugin::MP3 provides the following, mostly intuitive,
+C<Template::Plugin::MP3> provides the following, mostly intuitive,
 methods:
 
 =over 16
@@ -241,7 +222,7 @@ Version of the MP3 tag: 1 or 2
 
 =back
 
-MP3::Info defines some other fields that I don't grok; try
+C<MP3::Info> defines some other fields that I don't grok; try
 
     [% MP3.Dump %]
 
@@ -252,7 +233,7 @@ if the tag being read does not contain useful information.
 
 =head1 OTHER STUFF
 
-Template::Plugin::MP3 provides access to the @mp3_genres and
+C<Template::Plugin::MP3> provides access to the @mp3_genres and
 @winamp_genres arrays via the mp3_genres() and winamp_genres() class
 methods, or collectively through the genres() class method:
 
@@ -260,13 +241,19 @@ methods, or collectively through the genres() class method:
        * [% genre;
     END %]
 
-
-=head1 SEE ALSO
-
-L<Template::Plugin>, L<MP3::Info>
-
 =head1 AUTHORS
 
 darren chamberlain E<lt>darren@cpan.orgE<gt>
 
 Doug Gorley E<lt>douggorley@shaw.caE<gt>
+
+=head1 COPYRIGHT
+
+(C) 2003 darren chamberlain
+
+This library is free software; you may distribute it and/or modify it
+under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<Template::Plugin>, L<MP3::Info>

@@ -1,7 +1,10 @@
 Changes
-Makefile.PL
 MANIFEST
+MANIFEST.SKIP
 MP3.pm
+Makefile.PL
+META.yml
 README
+SIGNATURE
 test.mp3
 test.pl

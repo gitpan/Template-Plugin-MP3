@@ -1,3 +1,9 @@
+#!/usr/bin/perl
+
+# ----------------------------------------------------------------------
+# $Id: Makefile.PL,v 1.1.1.1 2003/06/24 13:42:29 dlc Exp $
+# ----------------------------------------------------------------------
+
 use strict;
 use ExtUtils::MakeMaker;
 
@@ -7,35 +13,33 @@ my %PREREQ_PM = (
 );
 
 my %clean = (
-    FILES => '$(DISTVNAME).tar$(SUFFIX) *.asc distdir',
+    FILES => '$(DISTVNAME).tar$(SUFFIX)',
 );
 
-my %macro = (
-    'GPG' => 'gpg',
-    'AUTHOR' => 'darren@cpan.org',
-    'SIGN'  => '--detach-sign --armor',
+my %dist = (
+    PREOP => 'perldoc -t MP3.pm > README; cpansign -s',
 );
+
 
 WriteMakefile(
-    NAME        => "Template::Plugin::MP3",
-    VERSION     => 1.01,
-    PREREQ_PM   => \%PREREQ_PM,
-    macro       => \%macro,
-    clean       => \%clean,
+    NAME         => "Template::Plugin::MP3",
+    VERSION_FROM => "MP3.pm",
+    PREREQ_PM    => \%PREREQ_PM,
+    clean        => \%clean,
+    dist         => \%dist,
 );
 
 package MY;
-sub dist_dir {
-	my $self = shift;
-	my $stuff = $self->SUPER::dist_dir(@_);
+use File::Basename qw(basename);
 
-	return "$stuff\ttouch distdir\n\n";
+sub libscan {
+    my $self = shift;
+    my $file = shift;
+    my $bfile = basename $file;
+
+    return if $bfile =~ m#^(TAGS|tags)$#;
+    return if $bfile =~ m#^\.#;
+    return if $bfile =~ m#~$#;
+    return $file;
 }
 
-sub postamble {
-    return <<'P';
-distsign :: $(DISTVNAME).tar$(SUFFIX)
-	$(GPG) $(SIGN) -u $(AUTHOR) $(DISTVNAME).tar$(SUFFIX)
-	@cat $(DISTVNAME).tar$(SUFFIX).asc
-P
-}
